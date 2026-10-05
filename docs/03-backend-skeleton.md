@@ -11,7 +11,7 @@
 | `backend/app/core/errors.py` | One error format `{"error": {code, message, request_id, details}}`; internal errors never leak |
 | `backend/app/db/session.py` | Database connection pool + `get_db` (one session per request, as the limited app role) |
 | `backend/app/api/v1/routes/health.py` | `GET /api/v1/health` (process alive) and `GET /api/v1/health/ready` (database reachable + schema version) |
-| `backend/Dockerfile`, `.dockerignore` | Production image for Cloud Run (built in the cloud in Phase 18) |
+| `Dockerfile` (project root) | Container image (API + dashboard), optional: Phase 18 installed directly on the server instead (see docs/18-deployment.md) |
 | `backend/tests/api/test_app_basics.py` | 13 API tests |
 
 Design note: the API uses **synchronous** SQLAlchemy sessions (FastAPI runs them in a thread pool). At ~500 employees this is more than fast enough, simpler, and avoids async-driver problems on Windows.
