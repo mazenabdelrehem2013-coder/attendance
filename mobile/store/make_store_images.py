@@ -35,19 +35,23 @@ FEATURE = BASE.replace("{}", f"""
   </div>
 </div>""")
 
-SCREENSHOTS = [
-    ("phase10-2-checked-out.png", "Check in and out in one tap"),
-    ("phase10-3-pending-review.png", "Your day at a glance"),
-    ("phase15-app-create-report.png", "Managers: download team reports"),
-    ("phase15-app-ready-reports.png", "Reports ready every morning"),
+SCREENSHOTS = [  # emulator captures (1080x2400) from the local demo data
+    ("store-checked-in.png", "Check in with one tap"),
+    ("store-home-in.png", "Your day at a glance"),
+    ("store-history.png", "Your monthly attendance"),
+    ("store-reports-create.png", "Managers: download team reports"),
+    ("store-reports-ready.png", "Reports ready every morning"),
 ]
 
 
 def screenshot_html(image: Path, caption: str) -> str:
+    # The phone image is shown 6 px larger than its frame, so the emulator's thin coloured edge is cut off.
     return BASE.replace("{}", f"""
 <div style='width:1080px;height:1920px;background:linear-gradient(180deg,{BLUE} 0%,#0f3d75 100%);display:flex;flex-direction:column;align-items:center'>
-  <div style='color:#fff;font-size:64px;font-weight:700;text-align:center;padding:90px 60px 60px;line-height:1.15'>{caption}</div>
-  <img src='{image.as_uri()}' style='height:1500px;border-radius:44px;box-shadow:0 24px 60px rgba(0,0,0,.35)'>
+  <div style='color:#fff;font-size:64px;font-weight:700;text-align:center;padding:110px 60px 70px;line-height:1.15'>{caption}</div>
+  <div style='width:648px;height:1440px;border-radius:44px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35)'>
+    <img src='{image.as_uri()}' style='width:660px;height:1467px;margin:-6px 0 0 -6px;display:block'>
+  </div>
 </div>""")
 
 

@@ -39,4 +39,4 @@ An account is required: it is created by Raya's HR department. If you can't log 
 **Graphics** (in `mobile/store/out/`, recreate with `backend\.venv\Scripts\python mobile\store\make_store_images.py`):
 - App icon 512×512: `icon-512.png`
 - Feature graphic 1024×500: `feature-1024x500.png`
-- Phone screenshots 1080×1920: `screenshot-1.png` … `screenshot-4.png`
+- Phone screenshots 1080×1920: `screenshot-1.png` … `screenshot-5.png`
