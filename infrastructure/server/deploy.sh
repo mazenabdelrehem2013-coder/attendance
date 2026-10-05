@@ -12,7 +12,8 @@ PREVIOUS="$(readlink -f "$APP/current" 2>/dev/null || true)"
 echo "== Unpacking into $REL"
 mkdir -p "$REL"
 tar -xzf "$BUNDLE" -C "$REL"
-chown -R root:attendance "$REL" && chmod -R g+rX,o-rwx "$REL"   # the app can read, not change, its code
+# The app can read, never change, its own code (root writes; group 'attendance' reads only).
+chown -R root:attendance "$REL" && chmod -R u=rwX,g=rX,o= "$REL"
 
 echo "== Python packages"
 [ -x "$APP/venv/bin/python" ] || python3 -m venv "$APP/venv"

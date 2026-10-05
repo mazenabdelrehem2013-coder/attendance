@@ -58,6 +58,7 @@ systemctl daemon-reload
 systemctl enable attendance-api attendance-scheduler
 
 echo "== 6. Web address $DOMAIN (nginx + free Let's Encrypt certificate)"
+echo 'limit_req_zone $binary_remote_addr zone=attendance_api:10m rate=20r/s;' > /etc/nginx/conf.d/attendance-ratelimit.conf
 sed "s/__DOMAIN__/$DOMAIN/g" "$HERE/nginx-attendance.conf" > /etc/nginx/sites-available/attendance
 ln -sf /etc/nginx/sites-available/attendance /etc/nginx/sites-enabled/attendance
 nginx -t && systemctl reload nginx
