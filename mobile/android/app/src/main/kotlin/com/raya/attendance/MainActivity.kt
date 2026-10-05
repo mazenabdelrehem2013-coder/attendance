@@ -1,4 +1,4 @@
-package com.example.attendance_app
+package com.raya.attendance
 
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException

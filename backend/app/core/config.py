@@ -70,7 +70,7 @@ class Settings(BaseSettings):
     # "off": integrity signal not used (local development, no Play Store build yet).
     # "google": every check-in must carry a Play Integrity token, verified with Google.
     play_integrity_mode: str = "off"
-    play_integrity_package_name: str = "com.example.attendance"
+    play_integrity_package_name: str = "com.raya.attendance"
     # Token must have been created within this many seconds.
     play_integrity_max_age_s: int = 120
 

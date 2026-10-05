@@ -30,3 +30,7 @@ Thumbs.db
 htmlcov/
 .coverage
 coverage/
+
+# Release bundles (uploaded to Google Play, not kept in git)
+*.aab
+*.apk

@@ -9,6 +9,8 @@ Group=attendance
 WorkingDirectory=/opt/attendance/current/backend
 Environment=PYTHONUNBUFFERED=1
 EnvironmentFile=/etc/attendance/api.env
+# Play Integrity: key location + on/off switch (optional file, see play-integrity.sh).
+EnvironmentFile=-/etc/attendance/integrity.env
 # Only nginx (same machine) talks to it; nginx passes on the visitor's real IP address.
 ExecStart=/opt/attendance/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8100 --workers 2 \
     --proxy-headers --forwarded-allow-ips 127.0.0.1 --no-server-header
