@@ -1,0 +1,5 @@
+-r requirements.txt
+pytest>=8.3,<9
+httpx2>=2.13,<3  # used by FastAPI TestClient
+pypdf>=5,<7  # tests read generated PDFs
+pytest-cov>=6,<8  # coverage report (Phase 17)

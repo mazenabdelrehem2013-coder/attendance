@@ -1,0 +1,88 @@
+# Runs every test on each push / pull request (once the code is on GitHub - Phase 18).
+# Backend: real PostgreSQL 18 with the same two roles and the same migrations as production.
+# Passwords below are throwaway values for this temporary CI database only.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: ci-postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      APP_ENV: test
+      DB_HOST: localhost
+      DB_OWNER_PASSWORD: ci-owner-password
+      DB_APP_PASSWORD: ci-app-password
+      SEED_DEFAULT_PASSWORD: ci-seed-password-123
+      JWT_SECRET: ci-jwt-secret-at-least-32-characters-long
+      QR_MASTER_KEY: ci-qr-master-key-at-least-40-characters-long-xx
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - name: Create database roles and databases (same script as on a developer PC)
+        env:
+          PGPASSWORD: ci-postgres
+        run: |
+          sudo apt-get install -y --no-install-recommends postgresql-client fonts-dejavu-core
+          psql -h localhost -U postgres -d postgres \
+            -v owner_password="$DB_OWNER_PASSWORD" -v app_password="$DB_APP_PASSWORD" \
+            -f ../database/setup/create_local_databases.sql
+      - run: pip install -r requirements-dev.txt
+      - name: Tests (with coverage)
+        run: python -m pytest --cov=app --cov-report=term --cov-fail-under=90
+      - name: Small load test (100 check-ins, then 50 simultaneous double taps)
+        run: |
+          python scripts/load_test.py --employees 100 --window 20 --concurrency 20 --max-p95-ms 2000
+          python scripts/load_test.py --employees 50 --window 5 --concurrency 20 --double-tap --max-p95-ms 3000
+
+  dashboard:
+    runs-on: ubuntu-24.04
+    env:
+      npm_config_cache: /home/runner/.npm  # dashboard/.npmrc points at D:\ (developer PC only)
+    defaults:
+      run:
+        working-directory: dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      - run: npm ci
+      - run: npx tsc -b --noEmit
+      - run: npx vitest run --coverage
+      - run: npm run build
+
+  mobile:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.6"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test --coverage

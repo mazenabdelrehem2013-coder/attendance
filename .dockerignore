@@ -1,0 +1,25 @@
+# Files NOT uploaded to Google Cloud Build. Secrets and local data must never leave this PC.
+.git/
+.gitignore
+.github/
+**/.env
+**/.env.*
+!**/.env.example
+**/.venv/
+**/node_modules/
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/.coverage
+**/htmlcov/
+**/coverage/
+**/dist/
+backend/.dev_phones/
+backend/.outbox/
+backend/tests/
+backend/scripts/
+mobile/
+docs/
+database/
+infrastructure/
+dashboard/.npmrc

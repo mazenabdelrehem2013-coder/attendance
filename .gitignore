@@ -1,0 +1,32 @@
+# Secrets
+.env
+*.env.local
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node / Flutter (later phases)
+node_modules/
+dist/
+build/
+.dart_tool/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+
+# Local phone simulator keys (development only)
+.dev_phones/
+
+# Emails saved locally instead of sent (development only)
+.outbox/
+
+# Test coverage reports
+htmlcov/
+.coverage
+coverage/

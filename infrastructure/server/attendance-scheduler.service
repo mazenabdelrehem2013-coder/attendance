@@ -1,0 +1,31 @@
+[Unit]
+Description=Raya attendance - scheduler (close the day, scheduled reports, alert rules, nightly checks)
+After=network.target postgresql.service attendance-api.service
+Requires=postgresql.service
+
+[Service]
+User=attendance
+Group=attendance
+WorkingDirectory=/opt/attendance/current/backend
+Environment=PYTHONUNBUFFERED=1
+# jobs.env includes the owner password (needed by the nightly data-retention clean-up).
+EnvironmentFile=/etc/attendance/jobs.env
+ExecStart=/opt/attendance/venv/bin/python -m app.jobs.scheduler --loop
+Restart=always
+RestartSec=10
+MemoryMax=400M
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

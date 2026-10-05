@@ -1,0 +1,15 @@
+# Runtime dependencies
+fastapi>=0.115,<1
+uvicorn[standard]>=0.32,<1
+sqlalchemy>=2.0.36,<2.1
+alembic>=1.14,<2
+psycopg[binary]>=3.2,<4
+pydantic>=2.9,<3
+pydantic-settings>=2.6,<3
+pwdlib[argon2]>=0.2,<1
+pyjwt>=2.9,<3
+tzdata>=2024.1  # timezone database (Windows and slim Linux images lack one)
+cryptography>=43  # verifies phone signatures (ECDSA)
+google-auth[requests]>=2.30,<3  # calls the Google Play Integrity API
+openpyxl>=3.1,<4  # Excel reports
+reportlab>=4.2,<5  # PDF reports

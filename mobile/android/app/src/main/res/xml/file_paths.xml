@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only the folder with downloaded reports is shared, nothing else. -->
+<paths>
+    <cache-path name="reports" path="reports/" />
+</paths>
