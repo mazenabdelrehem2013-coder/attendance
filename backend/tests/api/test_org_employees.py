@@ -56,6 +56,14 @@ def test_location_input_is_validated(client, world, bad):
     assert client.post("/api/v1/locations", headers=world.h("hr"), json=body).status_code == 422
 
 
+def test_google_maps_coordinates_are_rounded_not_refused(client, world):
+    body = {**NEW_LOCATION, "branch_id": str(world.branch_id),
+            "latitude": 30.044420193553, "longitude": "31.235711842"}
+    r = client.post("/api/v1/locations", headers=world.h("hr"), json=body)
+    assert r.status_code == 201, r.text
+    assert r.json()["latitude"] == "30.044420" and r.json()["longitude"] == "31.235712"
+
+
 def test_duplicate_location_code_is_refused(client, world):
     body = {**NEW_LOCATION, "code": "LOS", "branch_id": str(world.branch_id)}
     assert client.post("/api/v1/locations", headers=world.h("hr"), json=body).status_code == 409

@@ -98,6 +98,12 @@ function LocationDialog({ location, schedules, onClose, onSaved }: {
     work_schedule_id: location?.work_schedule_id ?? '', is_active: location?.is_active ?? true,
   })
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value })
+  // Google Maps copies "lat, lng" as one text: pasted into either box, it fills both.
+  const setCoordinate = (k: 'latitude' | 'longitude') => (e: { target: { value: string } }) => {
+    const pair = e.target.value.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/)
+    if (pair) setF({ ...f, latitude: pair[1], longitude: pair[2] })
+    else setF({ ...f, [k]: e.target.value })
+  }
 
   async function save() {
     const body = {
@@ -119,8 +125,8 @@ function LocationDialog({ location, schedules, onClose, onSaved }: {
       </TextField>
       <TextField label="Address" value={f.address} onChange={set('address')} />
       <Stack direction="row" spacing={2}>
-        <TextField label="Latitude" required value={f.latitude} onChange={set('latitude')} helperText="e.g. 6.428100" fullWidth />
-        <TextField label="Longitude" required value={f.longitude} onChange={set('longitude')} helperText="e.g. 3.421900" fullWidth />
+        <TextField label="Latitude" required value={f.latitude} onChange={setCoordinate('latitude')} helperText="e.g. 6.428100" fullWidth />
+        <TextField label="Longitude" required value={f.longitude} onChange={setCoordinate('longitude')} helperText="e.g. 3.421900" fullWidth />
       </Stack>
       <Typography variant="caption" color="text.secondary">
         Tip: in Google Maps, right-click the office entrance and click the numbers at the top to copy them.

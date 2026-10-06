@@ -116,6 +116,17 @@ describe('Locations & departments', () => {
     })
   })
 
+  it('splits a pasted Google Maps "lat, lng" pair into both boxes', async () => {
+    fakeServer(routes({}))
+    renderAt('/organization')
+    await userEvent.click(await screen.findByRole('button', { name: 'Add location' }))
+    const dialog = screen.getByRole('dialog')
+    await userEvent.click(within(dialog).getByLabelText(/^Latitude/))
+    await userEvent.paste('30.044420193553, 31.235711842')
+    expect(within(dialog).getByLabelText(/^Latitude/)).toHaveValue('30.044420193553')
+    expect(within(dialog).getByLabelText(/^Longitude/)).toHaveValue('31.235711842')
+  })
+
   it('adds a department', async () => {
     const calls = fakeServer(routes({ 'POST /departments': { status: 201, body: {} } }))
     renderAt('/organization')

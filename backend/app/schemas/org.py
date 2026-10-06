@@ -1,10 +1,10 @@
 import uuid
 from datetime import time
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Annotated
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, model_validator
+from pydantic import AfterValidator, BaseModel, BeforeValidator, ConfigDict, Field, model_validator
 
 from app.schemas.common import Code, Name
 
@@ -17,9 +17,19 @@ def _valid_timezone(value: str) -> str:
     return value
 
 
+def _round_coordinate(value):
+    """Google Maps copies ~14 decimals; 6 decimals (about 10 cm) is what we store."""
+    if isinstance(value, (int, float, str, Decimal)) and not isinstance(value, bool):
+        try:
+            return Decimal(str(value).strip()).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
+        except InvalidOperation:
+            return value  # let the normal validation report it
+    return value
+
+
 Timezone = Annotated[str, AfterValidator(_valid_timezone)]
-Latitude = Annotated[Decimal, Field(ge=-90, le=90, max_digits=9, decimal_places=6)]
-Longitude = Annotated[Decimal, Field(ge=-180, le=180, max_digits=9, decimal_places=6)]
+Latitude = Annotated[Decimal, BeforeValidator(_round_coordinate), Field(ge=-90, le=90, max_digits=9, decimal_places=6)]
+Longitude = Annotated[Decimal, BeforeValidator(_round_coordinate), Field(ge=-180, le=180, max_digits=9, decimal_places=6)]
 Radius = Annotated[int, Field(ge=10, le=5000, description="Allowed radius in meters")]
 Minutes = Annotated[int, Field(ge=0, le=240)]
 
