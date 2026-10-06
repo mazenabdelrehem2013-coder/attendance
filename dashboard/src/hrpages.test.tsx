@@ -116,6 +116,23 @@ describe('Locations & departments', () => {
     })
   })
 
+  it('shows which field the server refused', async () => {
+    fakeServer(routes({ 'POST /locations': { status: 422, body: { error: {
+      code: 'VALIDATION_ERROR', message: 'Some fields are missing or invalid.',
+      details: [{ field: 'timezone', issue: 'Value error, unknown timezone (use names like Africa/Lagos)' }] } } } }))
+    renderAt('/organization')
+    await userEvent.click(await screen.findByRole('button', { name: 'Add location' }))
+    const dialog = screen.getByRole('dialog')
+    await userEvent.type(within(dialog).getByLabelText(/^Name/), 'Cairo Office')
+    await userEvent.type(within(dialog).getByLabelText(/^Code/), 'CAI')
+    await userEvent.click(within(dialog).getByRole('combobox', { name: /Branch/ }))
+    await userEvent.click(await screen.findByRole('option', { name: 'Main' }))
+    await userEvent.type(within(dialog).getByLabelText(/^Latitude/), '30.0444')
+    await userEvent.type(within(dialog).getByLabelText(/^Longitude/), '31.2357')
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }))
+    expect(await within(dialog).findByText(/timezone: Value error, unknown timezone/)).toBeInTheDocument()
+  })
+
   it('splits a pasted Google Maps "lat, lng" pair into both boxes', async () => {
     fakeServer(routes({}))
     renderAt('/organization')

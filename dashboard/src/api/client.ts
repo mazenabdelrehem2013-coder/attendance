@@ -35,7 +35,13 @@ export function setSessionExpiredHandler(handler: (() => void) | null) {
 async function toError(response: Response): Promise<ApiError> {
   try {
     const body = await response.json()
-    if (body?.error) return new ApiError(response.status, body.error.code, body.error.message)
+    if (body?.error) {
+      // Validation errors list each wrong field: show them so the user knows what to fix.
+      const details = Array.isArray(body.error.details)
+        ? body.error.details.map((d: { field?: string; issue?: string }) => `${d.field ?? ''}: ${d.issue ?? ''}`).join('; ')
+        : ''
+      return new ApiError(response.status, body.error.code, details ? `${body.error.message} ${details}` : body.error.message)
+    }
   } catch {
     // not JSON
   }
