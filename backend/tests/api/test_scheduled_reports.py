@@ -179,27 +179,37 @@ def test_run_now_creates_company_and_team_files(client, world, set_time, test_se
                                                 AuditLog.action == "REPORT_DOWNLOADED"))
 
 
+def _future_tuesday() -> date:
+    """A Tuesday after the database's real date. Schedules and files are stamped with the real time
+    (not the simulated clock), so the test days must not be earlier than that."""
+    day = max(date(2026, 10, 6), date.today() + timedelta(days=2))
+    return day + timedelta(days=(1 - day.weekday()) % 7)
+
+
 def test_schedule_runs_once_at_its_time(client, world, set_time, test_session_factory):
     daily = {"name": "Morning", "report": "daily", "frequency": "daily", "time": "08:00",
              "days": [0, 1, 2, 3, 4, 5], "formats": ["PDF"], "recipient_roles": ["HR"]}
     client.post("/api/v1/hr/report-schedules", headers=world.h("hr"), json=daily)
+    label = "%A %d %B %Y"
 
-    set_time(7, 59, day=(2026, 10, 6))
+    tue = _future_tuesday()
+    set_time(7, 59, day=(tue.year, tue.month, tue.day))
     report_schedules.run_due(test_session_factory)
     assert ready(client, world, "hr")["total"] == 0
 
-    set_time(8, 1, day=(2026, 10, 6))
+    set_time(8, 1, day=(tue.year, tue.month, tue.day))
     report_schedules.run_due(test_session_factory)
     report_schedules.run_due(test_session_factory)  # again: nothing new
     [f] = ready(client, world, "hr")["items"]
-    assert f["period"] == "Monday 05 October 2026"  # the previous working day
+    assert f["period"] == (tue - timedelta(days=1)).strftime(label)  # the previous working day (Monday)
 
-    set_time(8, 0, day=(2026, 10, 11))  # Sunday: not a report day
+    sun, mon = tue + timedelta(days=5), tue + timedelta(days=6)
+    set_time(8, 0, day=(sun.year, sun.month, sun.day))  # Sunday: not a report day
     report_schedules.run_due(test_session_factory)
-    set_time(8, 5, day=(2026, 10, 12))  # Monday: reports on Saturday, skipping Sunday
+    set_time(8, 5, day=(mon.year, mon.month, mon.day))  # Monday: reports on Saturday, skipping Sunday
     report_schedules.run_due(test_session_factory)
     periods = [f["period"] for f in ready(client, world, "hr")["items"]]
-    assert periods == ["Saturday 10 October 2026", "Monday 05 October 2026"]
+    assert periods == [(mon - timedelta(days=2)).strftime(label), (tue - timedelta(days=1)).strftime(label)]
 
 
 def test_missed_time_is_skipped(client, world, set_time, test_session_factory):
