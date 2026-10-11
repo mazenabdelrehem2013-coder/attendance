@@ -119,7 +119,7 @@ def test_phone_clock_a_few_minutes_off_is_fine(client, world, ann_phone, set_tim
 
 
 @pytest.fixture
-def two_office_ann(client, world):
+def two_office_ann(client, world, set_time):
     client.put(f"/api/v1/employees/{world.ids['ann']}/locations", headers=world.h("hr"),
                json={"location_ids": [str(world.lagos_id), str(world.abuja_id)]})
     return approved_device(client, world, "ann")
