@@ -33,7 +33,7 @@ sed -e "s/ LOCALE_PROVIDER builtin BUILTIN_LOCALE ''C.UTF-8'' LOCALE ''C''/ LOCA
 .venv/bin/alembic upgrade head
 
 # Dashboard dependencies
-cd "$ROOT/dashboard" && npm install --no-audit --no-fund --silent
+cd "$ROOT/dashboard" && npm install --no-package-lock --no-audit --no-fund --silent
 
 if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
   echo "export PATH=\"$ROOT/backend/.venv/bin:\$PATH\"" >> "$CLAUDE_ENV_FILE"

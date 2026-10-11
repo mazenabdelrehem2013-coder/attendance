@@ -34,3 +34,6 @@ coverage/
 # Release bundles (uploaded to Google Play, not kept in git)
 *.aab
 *.apk
+
+# Stray Vite cache folder created on Linux from a Windows-style path
+dashboard/D:/
