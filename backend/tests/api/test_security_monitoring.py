@@ -316,10 +316,12 @@ def test_only_gps_can_be_cleared_and_only_with_the_switch(owner_factory, world, 
 def test_scheduler_runs_the_nightly_checks_once(world, set_time, test_session_factory):
     from app.jobs.scheduler import tick
 
-    set_time(1, 30, day=(2026, 10, 6))
+    # Audit checkpoints carry the database's real time, so the simulated night must come after it.
+    d = max(date(2026, 10, 6), date.today() + timedelta(days=2))
+    set_time(1, 30, day=(d.year, d.month, d.day))
     first = tick(test_session_factory)
     assert first.chain_ok is None and first.retention_ran is False  # before 02:00
-    set_time(2, 30, day=(2026, 10, 6))
+    set_time(2, 30, day=(d.year, d.month, d.day))
     night = tick(test_session_factory)
     assert night.chain_ok is True and night.retention_ran is True
     assert tick(test_session_factory).retention_ran is False  # once per night

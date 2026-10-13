@@ -5,7 +5,7 @@ out, the night job closes the day, managers/HR see the reports and download them
 arrive, and the audit trail is complete and intact."""
 
 import io
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from openpyxl import load_workbook
 
@@ -102,7 +102,9 @@ def test_a_full_working_day(client, world, set_time, test_session_factory):
 
     # 9. Security: one fake-GPS event on the dashboard; no alert rule fires for a single event.
     # (Security events carry the database's real time, the test clock is simulated: last 30 days.)
-    overview = client.get("/api/v1/security/overview", headers=hr).json()
+    today = datetime.now(timezone.utc).date()
+    overview = client.get("/api/v1/security/overview", headers=hr, params={
+        "from": (today - timedelta(days=1)).isoformat(), "to": (today + timedelta(days=1)).isoformat()}).json()
     assert {t["key"]: t["count"] for t in overview["by_type"]}.get("MOCK_LOCATION") == 1
     with test_session_factory() as db:
         assert [f.rule for f in monitoring.evaluate(db, world.org_id, datetime.now(timezone.utc))

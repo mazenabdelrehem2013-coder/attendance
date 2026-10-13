@@ -38,7 +38,7 @@ os.environ["RUN_SCHEDULER_IN_API"] = "false"
 BACKEND = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND))
 
-import httpx  # noqa: E402
+import httpx2 as httpx  # noqa: E402  (the "httpx2" package, see requirements-dev.txt)
 from cryptography.hazmat.primitives import hashes, serialization  # noqa: E402
 from cryptography.hazmat.primitives.asymmetric import ec  # noqa: E402
 
