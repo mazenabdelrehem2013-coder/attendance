@@ -2,7 +2,7 @@
 concentrating on security-relevant ones."""
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 import jwt
 import pytest
@@ -203,7 +203,11 @@ def test_a_broken_schedule_is_recorded_and_does_not_retry_every_minute(client, w
         raise RuntimeError("disk full")
 
     monkeypatch.setattr(report_schedules, "_create", boom)
-    set_time(8, 5, day=(2026, 10, 12))
+    # A Monday after the database's real date: the schedule is stamped with the real time, not the
+    # simulated clock, so an earlier test day would come before the schedule existed.
+    day = max(date(2026, 10, 12), date.today() + timedelta(days=1))
+    mon = day + timedelta(days=-day.weekday() % 7)
+    set_time(8, 5, day=(mon.year, mon.month, mon.day))
     report_schedules.run_due(test_session_factory)
     report_schedules.run_due(test_session_factory)
     with test_session_factory() as db:
