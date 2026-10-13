@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
 /// One GPS reading, taken at the moment of checking in or out. The app never tracks
@@ -14,7 +15,7 @@ class LocationReading {
   final double latitude;
   final double longitude;
   final double accuracyM;
-  final bool isMocked; // Android's mock-location flag (fake-GPS apps)
+  final bool isMocked; // mock-location flag (Android fake-GPS apps; iOS 15+ simulated locations)
   final DateTime fixTime; // when the reading was taken (phone clock)
 }
 
@@ -70,10 +71,9 @@ class GeolocatorLocationService implements LocationService {
   Future<LocationReading> currentReading() async {
     try {
       final p = await Geolocator.getCurrentPosition(
-        locationSettings: AndroidSettings(
-          accuracy: LocationAccuracy.best,
-          timeLimit: const Duration(seconds: 25),
-        ),
+        locationSettings: defaultTargetPlatform == TargetPlatform.iOS
+            ? AppleSettings(accuracy: LocationAccuracy.best, timeLimit: const Duration(seconds: 25))
+            : AndroidSettings(accuracy: LocationAccuracy.best, timeLimit: const Duration(seconds: 25)),
       );
       return LocationReading(
         latitude: p.latitude,

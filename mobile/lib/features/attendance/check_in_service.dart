@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -30,6 +31,7 @@ final phoneProvider = FutureProvider.autoDispose<PhoneRegistration>((ref) async 
   final json = await api.post('/devices/register', data: {
     'device_fingerprint': await security.fingerprint(),
     'install_id': await store.installId(),
+    'platform': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
     'public_key': await security.publicKey(),
     'device_model': info.model,
     'os_version': info.osVersion,
