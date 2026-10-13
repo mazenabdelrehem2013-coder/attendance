@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -191,9 +192,9 @@ class _CreateTabState extends ConsumerState<_CreateTab> {
         label: Text(_busy ? 'Preparing…' : 'DOWNLOAD'),
       ),
       const SizedBox(height: 12),
-      const Text('Managers get their own team; HR gets every employee. '
-          'Files are saved in the phone\'s Downloads/Attendance folder.',
-          style: TextStyle(color: Colors.black54)),
+      Text('Managers get their own team; HR gets every employee. '
+          '${defaultTargetPlatform == TargetPlatform.iOS ? 'Files are saved in the Files app, under On My iPhone > Raya Attendance.' : 'Files are saved in the phone\'s Downloads/Attendance folder.'}',
+          style: const TextStyle(color: Colors.black54)),
     ]);
   }
 }

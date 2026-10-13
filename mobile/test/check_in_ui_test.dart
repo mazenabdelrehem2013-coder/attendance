@@ -5,6 +5,7 @@ import 'package:attendance_app/core/providers.dart';
 import 'package:attendance_app/core/token_store.dart';
 import 'package:attendance_app/features/attendance/check_in_service.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,6 +57,18 @@ Map<String, dynamic> result(String r, String message) => {
 const challenge = {'challenge_id': 'c-1', 'nonce': 'nonce-123456', 'expires_at': '2026-10-05T08:08:30Z', 'server_time': '2026-10-05T08:07:00Z'};
 
 void main() {
+  testWidgets('the phone tells the server whether it is an Android phone or an iPhone', (tester) async {
+    var server = await openHome(tester);
+    Map body() => server.requests.lastWhere((r) => r.path == '/devices/register').data as Map;
+    expect(body()['platform'], 'android');
+
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    await tester.pumpWidget(const SizedBox());
+    server = await openHome(tester);
+    expect(body()['platform'], 'ios');
+    debugDefaultTargetPlatformOverride = null;
+  });
+
   testWidgets('a new phone waits for HR approval and cannot check in yet', (tester) async {
     await openHome(tester, phone: 'PENDING_APPROVAL');
     expect(find.textContaining('waiting for HR approval'), findsOneWidget);

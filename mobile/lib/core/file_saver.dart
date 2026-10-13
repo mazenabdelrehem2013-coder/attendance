@@ -11,7 +11,7 @@ class SavedFile {
   final String mediaType;
 }
 
-/// Saves downloaded reports on the phone and opens them (implemented in MainActivity.kt).
+/// Saves downloaded reports on the phone and opens them (MainActivity.kt / AppDelegate.swift).
 abstract class FileSaver {
   Future<SavedFile> save(Uint8List bytes, String filename, String mediaType);
 
