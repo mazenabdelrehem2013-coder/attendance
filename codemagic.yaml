@@ -1,0 +1,48 @@
+# Cloud build of the iPhone app for the App Store (no Mac needed) - see docs/21-ios-release.md.
+# Started by hand from the Codemagic website. It builds and signs the .ipa and stops there:
+# nothing is uploaded to App Store Connect until the publishing block at the end is turned on.
+workflows:
+  ios-release:
+    name: iOS release (App Store)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    working_directory: mobile
+    integrations:
+      # The App Store Connect API key added in Codemagic > Team settings > Integrations,
+      # saved under exactly this name.
+      app_store_connect: Raya App Store Connect
+    environment:
+      flutter: 3.47.6
+      xcode: latest
+      ios_signing:
+        # Codemagic creates (or reuses) the distribution certificate and the App Store
+        # provisioning profile through the API key.
+        distribution_type: app_store
+        bundle_identifier: com.raya.attendance
+      vars:
+        API_BASE_URL: https://raya.34.35.174.159.nip.io/api/v1
+    scripts:
+      - name: Packages
+        script: flutter pub get
+      - name: Tests (no release from failing code)
+        script: flutter test
+      - name: Signing profiles into the Xcode project
+        script: xcode-project use-profiles
+      - name: Build the signed .ipa
+        script: |
+          # The version (1.0.0) comes from pubspec.yaml; the build number must go up with every
+          # upload, so it is Codemagic's own build counter.
+          flutter build ipa --release \
+            --build-number=$BUILD_NUMBER \
+            --dart-define=API_BASE_URL=$API_BASE_URL \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - mobile/build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    # Upload to App Store Connect / TestFlight - OFF until you decide to send a build to Apple.
+    # To turn it on, remove the "#" in front of the lines below.
+    # publishing:
+    #   app_store_connect:
+    #     auth: integration
+    #     submit_to_testflight: true
+    #     submit_to_app_store: false

@@ -1,19 +1,21 @@
 import 'package:flutter/services.dart';
 
-/// The phone's security features, implemented natively in MainActivity.kt.
+/// The phone's security features, implemented natively in MainActivity.kt (Android) and
+/// AppDelegate.swift (iOS).
 abstract class DeviceSecurity {
   /// Base64 DER public key of the hardware-held EC P-256 key (created on first use).
   Future<String> publicKey();
 
-  /// Base64 ECDSA (SHA-256) signature made inside the Android Keystore.
+  /// Base64 ECDSA (SHA-256) signature made inside the Android Keystore / iOS Secure Enclave.
   Future<String> sign(String payload);
 
-  /// SHA-256 (hex) of ANDROID_ID - identifies this phone for this app.
+  /// SHA-256 (hex) of ANDROID_ID (iOS: of a random ID kept in the keychain) - identifies this
+  /// phone for this app.
   Future<String> fingerprint();
 
   Future<({String model, String osVersion})> deviceInfo();
 
-  /// Google Play Integrity token bound to [requestHash], or null if unavailable.
+  /// Google Play Integrity token bound to [requestHash], or null if unavailable (always on iOS).
   Future<String?> integrityToken(String requestHash, String cloudProjectNumber);
 }
 
