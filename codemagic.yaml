@@ -47,8 +47,14 @@ workflows:
             --build-number=$BUILD_NUMBER \
             --dart-define=API_BASE_URL=$API_BASE_URL \
             --export-options-plist=/Users/builder/export_options.plist
+      - name: Check the .ipa exists
+        script: |
+          # Fail here, not silently at Publishing, if Flutter did not write the .ipa.
+          ls -la build/ios/ipa/
+          ls build/ios/ipa/*.ipa
     artifacts:
-      - mobile/build/ios/ipa/*.ipa
+      # Absolute path, so it does not matter which folder Codemagic resolves artifacts from.
+      - /Users/builder/clone/mobile/build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
     # Upload to App Store Connect and TestFlight (private testing). It never submits to the
     # App Store: that is done by hand with "Submit for Review" in App Store Connect.
