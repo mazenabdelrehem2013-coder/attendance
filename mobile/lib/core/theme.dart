@@ -13,14 +13,14 @@ class AppColors {
 
 ThemeData buildTheme() {
   final scheme = ColorScheme.fromSeed(seedColor: AppColors.brand);
-  return ThemeData(
-    colorScheme: scheme,
-    useMaterial3: true,
+  final base = ThemeData(colorScheme: scheme, useMaterial3: true);
+  return base.copyWith(
     inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder()),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         minimumSize: const Size.fromHeight(56),
-        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, letterSpacing: 1),
+        // Based on the theme's button text, so it keeps the platform font family.
+        textStyle: base.textTheme.labelLarge?.copyWith(fontSize: 18, fontWeight: FontWeight.w600, letterSpacing: 1),
       ),
     ),
   );
