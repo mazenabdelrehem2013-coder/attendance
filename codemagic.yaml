@@ -1,6 +1,6 @@
 # Cloud build of the iPhone app for the App Store (no Mac needed) - see docs/21-ios-release.md.
-# Started by hand from the Codemagic website. It builds and signs the .ipa and stops there:
-# nothing is uploaded to App Store Connect until the publishing block at the end is turned on.
+# Started by hand from the Codemagic website. It builds and signs the .ipa and uploads it to
+# App Store Connect / TestFlight (publishing block at the end).
 workflows:
   ios-release:
     name: iOS release (App Store)
@@ -50,10 +50,10 @@ workflows:
     artifacts:
       - mobile/build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
-    # Upload to App Store Connect / TestFlight - OFF until you decide to send a build to Apple.
-    # To turn it on, remove the "#" in front of the lines below.
-    # publishing:
-    #   app_store_connect:
-    #     auth: integration
-    #     submit_to_testflight: true
-    #     submit_to_app_store: false
+    # Upload to App Store Connect and TestFlight (private testing). It never submits to the
+    # App Store: that is done by hand with "Submit for Review" in App Store Connect.
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false

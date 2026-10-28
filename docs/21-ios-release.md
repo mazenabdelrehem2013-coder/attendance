@@ -52,12 +52,13 @@ the `.p8` file (only possible once) and note the **Issuer ID** and **Key ID**.
    profile; later builds reuse them. Keep a copy of the key: a new key means a new certificate,
    and Apple allows only 3.
 4. **Start new build** › branch `main` › workflow **iOS release (App Store)**. The result is a
-   signed `Runner.ipa` under the build's artifacts. Nothing is sent to Apple yet.
+   signed `Runner.ipa` under the build's artifacts, also uploaded to TestFlight (step 5).
 
-### 5. Send a build to Apple (only when you decide)
-Uncomment the `publishing:` block at the end of `codemagic.yaml` and run the build again: it
-uploads to App Store Connect and TestFlight. Then, in App Store Connect, fill in the listing and
-press **Submit for Review**.
+### 5. TestFlight, then the App Store
+Every build uploads to App Store Connect and TestFlight (the `publishing:` block at the end of
+`codemagic.yaml`). Install **TestFlight** on your iPhone; after Apple's processing the build appears
+there for the account holder (more testers: App Store Connect › the app › TestFlight). Going public
+is a separate step: fill in the listing in App Store Connect and press **Submit for Review**.
 
 ## The listing in App Store Connect
 
