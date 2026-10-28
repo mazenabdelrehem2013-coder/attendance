@@ -44,8 +44,15 @@ the `.p8` file (only possible once) and note the **Issuer ID** and **Key ID**.
 1. Sign in with GitHub and add the `attendance` repository.
 2. **Team settings › Integrations › Developer Portal › Manage keys › Add key**: name it exactly
    `Raya App Store Connect`, paste the Issuer ID and Key ID, upload the `.p8`.
-3. **Start new build** › workflow **iOS release (App Store)**. The result is a signed
-   `Runner.ipa` under the build's artifacts. Nothing is sent to Apple yet.
+3. **Certificate private key** (once): make a 2048-bit RSA key, e.g.
+   `ssh-keygen -t rsa -b 2048 -m PEM -f ios_distribution_private_key -q -N ""`. In Codemagic ›
+   the app › **Environment variables**, add `CERTIFICATE_PRIVATE_KEY` with the whole file
+   (including the `BEGIN`/`END` lines), group `code-signing`, **Secret** ticked. On the first
+   build Codemagic creates the Apple Distribution certificate for this key and the App Store
+   profile; later builds reuse them. Keep a copy of the key: a new key means a new certificate,
+   and Apple allows only 3.
+4. **Start new build** › branch `main` › workflow **iOS release (App Store)**. The result is a
+   signed `Runner.ipa` under the build's artifacts. Nothing is sent to Apple yet.
 
 ### 5. Send a build to Apple (only when you decide)
 Uncomment the `publishing:` block at the end of `codemagic.yaml` and run the build again: it

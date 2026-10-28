@@ -14,18 +14,29 @@ workflows:
     environment:
       flutter: 3.47.6
       xcode: latest
-      ios_signing:
-        # Codemagic creates (or reuses) the distribution certificate and the App Store
-        # provisioning profile through the API key.
-        distribution_type: app_store
-        bundle_identifier: com.raya.attendance
+      groups:
+        # Holds CERTIFICATE_PRIVATE_KEY (secret): the private key of the Apple Distribution
+        # certificate. Added once in Codemagic > the app > Environment variables.
+        - code-signing
       vars:
         API_BASE_URL: https://raya.34.35.174.159.nip.io/api/v1
+        BUNDLE_ID: com.raya.attendance
     scripts:
       - name: Packages
         script: flutter pub get
       - name: Tests (no release from failing code)
         script: flutter test
+      - name: Keychain for signing
+        script: keychain initialize
+      - name: Certificate and App Store profile from Apple
+        script: |
+          # Through the API key: reuses the distribution certificate that matches
+          # CERTIFICATE_PRIVATE_KEY and the App Store profile, creating them on the first build.
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+      - name: Certificate into the keychain
+        script: keychain add-certificates
       - name: Signing profiles into the Xcode project
         script: xcode-project use-profiles
       - name: Build the signed .ipa
