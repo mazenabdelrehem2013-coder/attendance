@@ -63,3 +63,23 @@ workflows:
         auth: integration
         submit_to_testflight: true
         submit_to_app_store: false
+
+  # Uploads the App Store screenshots (mobile/store/out/ios/1290x2796, iPhone 6.9" slot) to the
+  # version being prepared in App Store Connect. Started by hand; changes only the screenshots and
+  # never submits anything for review.
+  ios-screenshots:
+    name: iOS App Store screenshots
+    instance_type: mac_mini_m2
+    max_build_duration: 20
+    working_directory: mobile
+    integrations:
+      app_store_connect: Raya App Store Connect
+    environment:
+      vars:
+        APP_STORE_APP_ID: "6827759947"
+    scripts:
+      - name: Upload screenshots to App Store Connect
+        script: |
+          python3 -m venv /tmp/venv
+          /tmp/venv/bin/pip install --quiet pyjwt cryptography requests
+          /tmp/venv/bin/python store/upload_screenshots.py "$APP_STORE_APP_ID" store/out/ios/1290x2796
