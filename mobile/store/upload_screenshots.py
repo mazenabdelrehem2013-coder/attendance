@@ -6,6 +6,7 @@ It only changes the screenshots: it never submits anything for review.
 
     python3 store/upload_screenshots.py <app id> <folder with the .png files>
 """
+import base64
 import glob
 import hashlib
 import os
@@ -19,13 +20,43 @@ API = 'https://api.appstoreconnect.apple.com/v1'
 DISPLAY_TYPE = 'APP_IPHONE_67'  # the "iPhone 6.9-inch Display" slot
 
 
+def setting(name):
+    # Codemagic may pass a value itself, or point at it with "@file:<path>" / "@env:<name>".
+    value = os.environ.get(name, '').strip()
+    for _ in range(3):
+        if value.startswith('@file:'):
+            value = open(os.path.expanduser(value[6:])).read().strip()
+        elif value.startswith('@env:'):
+            value = os.environ.get(value[5:], '').strip()
+        else:
+            break
+    if not value:
+        sys.exit(f'{name} is not set')
+    return value
+
+
+def private_key():
+    key = setting('APP_STORE_CONNECT_PRIVATE_KEY').replace('\\n', '\n').strip().strip('"')
+    if 'BEGIN' not in key:
+        try:  # base64 of the whole .p8 file
+            decoded = base64.b64decode(key, validate=True).decode()
+            if 'BEGIN' in decoded:
+                key = decoded
+        except (ValueError, UnicodeDecodeError):
+            pass
+    if 'BEGIN' not in key:  # only the key body
+        body = ''.join(key.split())
+        key = '-----BEGIN PRIVATE KEY-----\n' + '\n'.join(body[i:i + 64] for i in range(0, len(body), 64)) + '\n-----END PRIVATE KEY-----'
+    return key
+
+
 def token():
     now = int(time.time())
     return jwt.encode(
-        {'iss': os.environ['APP_STORE_CONNECT_ISSUER_ID'], 'iat': now, 'exp': now + 15 * 60, 'aud': 'appstoreconnect-v1'},
-        os.environ['APP_STORE_CONNECT_PRIVATE_KEY'],
+        {'iss': setting('APP_STORE_CONNECT_ISSUER_ID'), 'iat': now, 'exp': now + 15 * 60, 'aud': 'appstoreconnect-v1'},
+        private_key(),
         algorithm='ES256',
-        headers={'kid': os.environ['APP_STORE_CONNECT_KEY_IDENTIFIER']},
+        headers={'kid': setting('APP_STORE_CONNECT_KEY_IDENTIFIER')},
     )
 
 
